@@ -143,7 +143,11 @@ class ZbufferModelPts(nn.Module):
         # Camera parameters
         K = batch["cameras"][0]["K"]
         K_inv = batch["cameras"][0]["Kinv"]
-
+        
+        identity = (
+                torch.eye(4).unsqueeze(0).repeat(input_img.size(0), 1, 1)
+            )
+        
         if torch.cuda.is_available():
             input_img = input_img.cuda()
 
@@ -151,9 +155,7 @@ class ZbufferModelPts(nn.Module):
             K_inv = K_inv.cuda()
 
             RTs = [RT.cuda() for RT in RTs]
-            identity = (
-                torch.eye(4).unsqueeze(0).repeat(input_img.size(0), 1, 1).cuda()
-            )
+            identity = identity.cuda()
 
         fs = self.encoder(input_img)
         regressed_pts = (
